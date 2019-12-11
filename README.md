@@ -1,3 +1,8 @@
+Preamble: it looks like the original repo at https://github.com/HearthSim/UnityPack is either not maintained, or the evolutions are kept private.
+
+The goal of this repo is to try and keep things working for the newest udpates of Hearthstone (it might also work for other games or unity files, but I don't test anything with them).
+Also, I am on Windows, so things might be different from where you are.
+
 # UnityPack
 [![Build Status](https://api.travis-ci.org/HearthSim/UnityPack.svg?branch=master)](https://travis-ci.org/HearthSim/UnityPack)
 
@@ -24,6 +29,20 @@ the "unextractable" classes which one might want to deal with.
 
 
 ## Usage
+
+### Usage for noobs
+
+If, like myself, you are not a frequent / fluent python speaker, this is what you have to do after cloning UnityPack:
+
+* You need to have python3 installed
+* Copy the `libogg.dll` and `libvorbis.dll` from `./lib` into the root folder (`.`)
+* Run `./setup.py install`
+* Extract the data you're interested, for insance `./bin/unityextract --audio -o out/audio /d/Games/Hearthstone/Data/Win/gameobjects0.unity3d`
+
+WARNING: today, this fails for me at this point (which is the reason I'm creating this fork). See https://github.com/HearthSim/UnityPack/issues/92
+
+
+### Usage in code
 
 To open an asset, or asset bundle, with unitypack:
 
