@@ -53,6 +53,7 @@ class TypeTree:
 		num_nodes = buf.read_uint()
 		self.buffer_bytes = buf.read_uint()
 		node_bytes = 32 if self.format >= 19 else 24
+		# node_bytes = 32 if self.format >= 20 else 24
 		node_data = BytesIO(buf.read(node_bytes * num_nodes))
 		self.data = buf.read(self.buffer_bytes)
 
@@ -83,6 +84,8 @@ class TypeTree:
 
 			# consume unused bytes in the node (always zeros?)
 			buf.read(node_bytes - 24)
+			# if self.format >= 20:
+			# 	unk1 = buf.read_int64() # zero bytes?
 
 	def get_string(self, offset):
 		if offset < 0:
