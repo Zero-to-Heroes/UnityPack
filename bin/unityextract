@@ -35,6 +35,7 @@ class UnityExtract:
 		p.add_argument("--as-asset", action="store_true", help="Force open files as Asset format")
 		p.add_argument("--filter", nargs="*", help="Filter extraction for a specific name")
 		p.add_argument("-n", "--dry-run", action="store_true", help="Skip writing files")
+		p.add_argument("--skip-existing", action="store_true")
 		self.args = p.parse_args(args)
 
 		self.handle_formats = []
@@ -68,15 +69,16 @@ class UnityExtract:
 
 	def write_to_file(self, filename, contents, mode="w"):
 		path = self.get_output_path(filename)
+		exists = os.path.exists(path)
 
 		if self.args.dry_run:
 			print("Would write %i bytes to %r" % (len(contents), path))
 			return
-
-		with open(path, mode) as f:
-			written = f.write(contents)
-
-		print("Written %i bytes to %r" % (written, path))
+		
+		if not (self.args.skip_existing and exists):
+			with open(path, mode) as f:
+				written = f.write(contents)
+				print("Written %i bytes to %r" % (written, path))
 
 	def handle_asset(self, asset):
 		for id, obj in asset.objects.items():
