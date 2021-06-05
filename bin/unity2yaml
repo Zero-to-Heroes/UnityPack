@@ -12,6 +12,10 @@ from unitypack.object import ObjectPointer
 
 def handle_asset(asset):
 	for id, obj in asset.objects.items():
+		if obj.type == "AnimationClip":
+			# There are issues reading animation clips, and we don't need them for cards
+			continue
+		
 		d = obj.read()
 
 		print(yaml.dump(d))

@@ -5,9 +5,12 @@ import sys
 from argparse import ArgumentParser
 from io import BytesIO
 
+import yaml
+
 import unitypack
 from unitypack.asset import Asset
 from unitypack.export import OBJMesh
+from unitypack.object import ObjectPointer
 from unitypack.utils import extract_audioclip_samples
 
 
@@ -21,6 +24,42 @@ class UnityExtract:
 		"text": "TextAsset",
 		"video": "MovieTexture",
 	}
+
+	def asset_representer(self, dumper, data):
+		return dumper.represent_scalar("!asset", data.name)
+	yaml.add_representer(Asset, asset_representer)
+
+
+	def objectpointer_representer(self, dumper, data):
+		return dumper.represent_sequence("!PPtr", [data.file_id, data.path_id])
+	yaml.add_representer(ObjectPointer, objectpointer_representer)
+
+
+	def unityobj_representer(self, dumper, data):
+		return dumper.represent_mapping("!unitypack:%s" % (data.__class__.__name__), data._obj)
+
+
+	def shader_representer(self, dumper, data):
+		return dumper.represent_mapping("!unitypack:stripped:Shader", {data.name: None})
+
+
+	def textasset_representer(self, dumper, data):
+		return dumper.represent_mapping("!unitypack:stripped:TextAsset", {data.name: None})
+
+
+	def texture2d_representer(self, dumper, data):
+		return dumper.represent_mapping("!unitypack:stripped:Texture2D", {data.name: None})
+
+
+	def mesh_representer(self, dumper, data):
+		return dumper.represent_mapping("!unitypack:stripped:Mesh", {data.name: None})
+
+
+	def movietexture_representer(self, dumper, data):
+		obj = data._obj.copy()
+		obj["m_MovieData"] = "<stripped>"
+		return dumper.represent_mapping("!unitypack:stripped:MovieTexture", obj)
+
 
 	def __init__(self, args):
 		self.parse_args(args)
@@ -37,6 +76,17 @@ class UnityExtract:
 		p.add_argument("-n", "--dry-run", action="store_true", help="Skip writing files")
 		p.add_argument("--skip-existing", action="store_true")
 		self.args = p.parse_args(args)
+
+		for k, v in unitypack.engine.__dict__.items():
+			if isinstance(v, type) and issubclass(v, unitypack.engine.object.Object):
+				yaml.add_representer(v, self.unityobj_representer)
+
+		# if args.strip:
+		yaml.add_representer(unitypack.engine.mesh.Mesh, self.mesh_representer)
+		yaml.add_representer(unitypack.engine.movie.MovieTexture, self.movietexture_representer)
+		yaml.add_representer(unitypack.engine.text.Shader, self.shader_representer)
+		yaml.add_representer(unitypack.engine.text.TextAsset, self.textasset_representer)
+		yaml.add_representer(unitypack.engine.texture.Texture2D, self.texture2d_representer)
 
 		self.handle_formats = []
 		for a, classname in self.FORMAT_ARGS.items():
@@ -97,6 +147,8 @@ class UnityExtract:
 
 			if obj.type == "AudioClip":
 				samples = extract_audioclip_samples(d)
+				print(yaml.dump(d))
+				print(obj)
 				for filename, sample in samples.items():
 					self.write_to_file(filename, sample, mode="wb")
 
@@ -150,6 +202,9 @@ class UnityExtract:
 				output = BytesIO()
 				img.save(output, format="png")
 				self.write_to_file(filename, output.getvalue(), mode="wb")
+
+				
+
 
 
 def main():

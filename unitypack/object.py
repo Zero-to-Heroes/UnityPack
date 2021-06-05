@@ -170,6 +170,11 @@ class ObjectInfo:
 		pos_after = buf.tell()
 		actual_size = pos_after - pos_before
 		if expected_size > 0 and actual_size < expected_size:
+			# print("type %s, %s" % (t, type))
+			# print("isrray %s" % type.is_array)
+			# print("first child %s" % first_child)
+			# print("format %s" % self.asset.format)
+			# print("result %s" % result)
 			raise ValueError("Expected read_value(%r) to read %r bytes, but only read %r bytes" % (type, expected_size, actual_size))
 
 		if align or type.post_align:
