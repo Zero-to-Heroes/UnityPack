@@ -157,7 +157,10 @@ class UnityExtract:
 				self.write_to_file(filename, d.movie_data, mode="wb")
 
 			elif obj.type == "Shader":
-				self.write_to_file(d.name + ".cg", d.script)
+				try:
+					self.write_to_file(d.name + ".cg", d.script)
+				except Exception as e:
+					print("Could not extract shader %s, %s" % (d.name, e))
 
 			elif obj.type == "Mesh":
 				try:
