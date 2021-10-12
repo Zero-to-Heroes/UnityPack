@@ -193,6 +193,9 @@ class UnityExtract:
 				except NotImplementedError:
 					print("WARNING: Texture format not implemented. Skipping %r." % (filename))
 					continue
+				except Exception as e:
+					print("ERROR: Could not handle image %s" % e)
+					continue
 
 				if image is None:
 					print("WARNING: %s is an empty image" % (filename))
